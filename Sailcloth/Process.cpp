@@ -1,11 +1,11 @@
 #include "Process.h"
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
-#include <list>
+#include <allegro5/allegro_image.h>
 
 void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
-    ALLEGRO_DISPLAY* display = NULL;
-    ALLEGRO_EVENT_QUEUE* event_queue = NULL;
+    ALLEGRO_DISPLAY *display = NULL;
+    ALLEGRO_EVENT_QUEUE *event_queue = NULL;
 
     bool isDrawing = false;
 
@@ -14,11 +14,13 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
     }
 
     al_install_mouse();
+    al_install_keyboard();
 
     display = al_create_display(WIDTH, HEIGHT);
     if (!display) {
         return;
     }
+    al_set_window_title(display, "SailCloth");
     al_clear_to_color(al_map_rgb(255, 255, 255));
 
     al_init_primitives_addon();
@@ -41,7 +43,6 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
             startY = event.mouse.y;
 
             if (event.mouse.button == 2) {
-                al_save_bitmap("drawing.bmp", al_get_backbuffer(display));
                 al_clear_to_color(al_map_rgb(255, 255, 255));
             }
         }
@@ -53,7 +54,6 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
 
         al_flip_display();
     }
-
     al_destroy_display(display);
     al_destroy_event_queue(event_queue);
 }

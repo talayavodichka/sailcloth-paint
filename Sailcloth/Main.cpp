@@ -12,7 +12,7 @@ oo     .d8P d8(  888   888   888  888   .o8  888  888   888   888 .  888   888
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
-#include <list>
+#include <allegro5/allegro_image.h>
 #include "Process.h"
 
 int main() {
