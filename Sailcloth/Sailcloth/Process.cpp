@@ -6,7 +6,6 @@
 ALLEGRO_DISPLAY* display = NULL;
 ALLEGRO_EVENT_QUEUE* event_queue = NULL;
 bool isDrawing = false;
-short startX = 0, startY = 0, endX = 0, endY = 0;
 
 void process_control::init(unsigned short WIDTH, unsigned short HEIGHT) {
     if (!al_init()) {
@@ -29,6 +28,7 @@ void process_control::init(unsigned short WIDTH, unsigned short HEIGHT) {
     event_queue = al_create_event_queue();
     al_register_event_source(event_queue, al_get_display_event_source(display));
     al_register_event_source(event_queue, al_get_mouse_event_source());
+    al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
     al_flip_display();
 }
 
@@ -42,17 +42,21 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
         if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) break;
 
         if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
-            startX = event.mouse.x;
-            startY = event.mouse.y;
+            isDrawing = true;
+            al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_PRECISION);
 
             if (event.mouse.button == 2) {
+                isDrawing = false;
                 al_clear_to_color(al_map_rgb(255, 255, 255));
             }
         }
         else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
-            endX = event.mouse.x;
-            endY = event.mouse.y;
-            al_draw_line(startX, startY, endX, endY, al_map_rgb(0, 0, 0), 10);
+            isDrawing = false;
+            al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
+        }
+
+        if (isDrawing) {
+            al_draw_filled_circle(event.mouse.x, event.mouse.y, 10, al_map_rgb(0, 0, 0));
         }
 
         al_flip_display();
