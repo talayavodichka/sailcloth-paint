@@ -1,14 +1,14 @@
-#include "Process.h"
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_image.h>
+#include "Process.h"
 
-void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
-    ALLEGRO_DISPLAY *display = NULL;
-    ALLEGRO_EVENT_QUEUE *event_queue = NULL;
+ALLEGRO_DISPLAY* display = NULL;
+ALLEGRO_EVENT_QUEUE* event_queue = NULL;
+bool isDrawing = false;
+short startX = 0, startY = 0, endX = 0, endY = 0;
 
-    bool isDrawing = false;
-
+void process_control::init(unsigned short WIDTH, unsigned short HEIGHT) {
     if (!al_init()) {
         return;
     }
@@ -20,6 +20,7 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
     if (!display) {
         return;
     }
+
     al_set_window_title(display, "SailCloth");
     al_clear_to_color(al_map_rgb(255, 255, 255));
 
@@ -29,9 +30,11 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
     al_register_event_source(event_queue, al_get_display_event_source(display));
     al_register_event_source(event_queue, al_get_mouse_event_source());
     al_flip_display();
+}
 
-    short startX = 0, startY = 0, endX = 0, endY = 0;
-
+void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
+    process_control::init(WIDTH, HEIGHT);
+    
     while (1) {
         ALLEGRO_EVENT event;
         al_wait_for_event(event_queue, &event);
@@ -54,6 +57,11 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
 
         al_flip_display();
     }
+
+    process_control::destroy();
+}
+
+void process_control::destroy() {
     al_destroy_display(display);
     al_destroy_event_queue(event_queue);
 }
