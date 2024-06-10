@@ -1,13 +1,28 @@
+#include <vector>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_image.h>
 #include "Process.h"
+#include "Button.h"
 
 ALLEGRO_DISPLAY* display = NULL;
 ALLEGRO_EVENT_QUEUE* event_queue = NULL;
+ALLEGRO_BITMAP* icon = NULL;
+ALLEGRO_COLOR curr_color;
+std::vector<Button> buttons;
 bool isDrawing = false;
 
 void process_control::init(unsigned short WIDTH, unsigned short HEIGHT) {
+    Button redButton(10, 10, 50, 50, al_map_rgb(255, 0, 0));
+    Button greenButton(70, 10, 50, 50, al_map_rgb(0, 255, 0));
+    Button blueButton(130, 10, 50, 50, al_map_rgb(0, 0, 255));
+
+    buttons.push_back(redButton);
+    buttons.push_back(greenButton);
+    buttons.push_back(blueButton);
+
+    curr_color = al_map_rgb(0, 0, 0);
+
     if (!al_init()) {
         return;
     }
@@ -24,11 +39,18 @@ void process_control::init(unsigned short WIDTH, unsigned short HEIGHT) {
     al_clear_to_color(al_map_rgb(255, 255, 255));
 
     al_init_primitives_addon();
+    al_init_image_addon();
+
+    for (int i = 0; i < buttons.size(); ++i) {
+        buttons[i].draw_button();
+    }
 
     event_queue = al_create_event_queue();
+    icon = al_load_bitmap("icon.png");
     al_register_event_source(event_queue, al_get_display_event_source(display));
     al_register_event_source(event_queue, al_get_mouse_event_source());
     al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
+    al_set_display_icon(display, icon);
     al_flip_display();
 }
 
@@ -45,6 +67,13 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
             isDrawing = true;
             al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_PRECISION);
 
+            for (auto& button : buttons) {
+                if (event.mouse.x >= button.x && event.mouse.x <= button.x + button.width &&
+                    event.mouse.y >= button.y && event.mouse.y <= button.y + button.height) {
+                    curr_color = button.color;
+                }
+            }
+
             if (event.mouse.button == 2) {
                 isDrawing = false;
                 al_clear_to_color(al_map_rgb(255, 255, 255));
@@ -56,7 +85,7 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
         }
 
         if (isDrawing) {
-            al_draw_filled_circle(event.mouse.x, event.mouse.y, 10, al_map_rgb(0, 0, 0));
+            al_draw_filled_circle(event.mouse.x, event.mouse.y, 10, curr_color);
         }
 
         al_flip_display();
@@ -66,6 +95,7 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
 }
 
 void process_control::destroy() {
+    al_destroy_bitmap(icon);
     al_destroy_display(display);
     al_destroy_event_queue(event_queue);
 }
