@@ -147,6 +147,7 @@
   <ItemGroup>
     <ClInclude Include="Button.h" />
     <ClInclude Include="Process.h" />
+    <ClInclude Include="SafeZone.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

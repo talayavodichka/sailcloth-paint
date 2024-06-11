@@ -4,12 +4,14 @@
 #include <allegro5/allegro_image.h>
 #include "Process.h"
 #include "Button.h"
+#include "SafeZone.h"
 
 ALLEGRO_DISPLAY* display = NULL;
 ALLEGRO_EVENT_QUEUE* event_queue = NULL;
 ALLEGRO_BITMAP* icon = NULL;
 ALLEGRO_COLOR curr_color;
 std::vector<Button> buttons;
+SafeZone sz(0, 80, 640, 400);
 bool isDrawing = false;
 
 void process_control::init(unsigned short WIDTH, unsigned short HEIGHT) {
@@ -64,8 +66,7 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
         if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) break;
 
         if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
-            isDrawing = true;
-            al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_PRECISION);
+            if (sz.Check(event.mouse.x, event.mouse.y)) isDrawing = true;
 
             for (auto& button : buttons) {
                 if (event.mouse.x >= button.x && event.mouse.x <= button.x + button.width &&
@@ -79,13 +80,14 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
                 al_clear_to_color(al_map_rgb(255, 255, 255));
             }
         }
-        else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
+        else if ((event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) || (!sz.Check(event.mouse.x, event.mouse.y))) {
             isDrawing = false;
             al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
         }
 
         if (isDrawing) {
             al_draw_filled_circle(event.mouse.x, event.mouse.y, 10, curr_color);
+            al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_PRECISION);
         }
 
         al_flip_display();
