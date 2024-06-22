@@ -12,4 +12,4 @@ namespace process_control {
 	void destroy();
 }
 
-#endif
+#endif // !Process

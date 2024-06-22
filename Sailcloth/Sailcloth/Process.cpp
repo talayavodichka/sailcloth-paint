@@ -4,25 +4,22 @@
 #include <allegro5/allegro_image.h>
 #include "Process.h"
 #include "Button.h"
+#include "Color.h"
 #include "SafeZone.h"
 
 ALLEGRO_DISPLAY* display = NULL;
 ALLEGRO_EVENT_QUEUE* event_queue = NULL;
 ALLEGRO_BITMAP* icon = NULL;
 ALLEGRO_COLOR curr_color;
-std::vector<Button> buttons;
-SafeZone sz(0, 80, 640, 400);
+std::vector<Button> buttons = {
+    { 5, 5, 20, 20, RED },
+    { 30, 5, 20, 20, GREEN },
+    { 55, 5, 20, 20, BLUE },
+};
+SafeZone sz(0, 40, 640, 440);
 bool isDrawing = false;
 
 void process_control::init(unsigned short WIDTH, unsigned short HEIGHT) {
-    Button redButton(10, 10, 50, 50, al_map_rgb(255, 0, 0));
-    Button greenButton(70, 10, 50, 50, al_map_rgb(0, 255, 0));
-    Button blueButton(130, 10, 50, 50, al_map_rgb(0, 0, 255));
-
-    buttons.push_back(redButton);
-    buttons.push_back(greenButton);
-    buttons.push_back(blueButton);
-
     curr_color = al_map_rgb(0, 0, 0);
 
     if (!al_init()) {
@@ -78,6 +75,9 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
             if (event.mouse.button == 2) {
                 isDrawing = false;
                 al_clear_to_color(al_map_rgb(255, 255, 255));
+                for (int i = 0; i < buttons.size(); ++i) {
+                    buttons[i].draw_button();
+                }
             }
         }
         else if ((event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) || (!sz.Check(event.mouse.x, event.mouse.y))) {
