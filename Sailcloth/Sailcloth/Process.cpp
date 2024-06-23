@@ -15,6 +15,9 @@ std::vector<Button> buttons = {
     { 5, 5, 20, 20, RED },
     { 30, 5, 20, 20, GREEN },
     { 55, 5, 20, 20, BLUE },
+    { 80, 5, 20, 20, YELLOW },
+    { 105, 5, 20, 20, PINK },
+    { 130, 5, 20, 20, CYAN },
 };
 SafeZone sz(0, 40, 640, 440);
 bool isDrawing = false;
