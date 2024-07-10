@@ -2,6 +2,8 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_image.h>
+#include <allegro5/allegro_audio.h>
+#include <allegro5/allegro_acodec.h>
 #include "Process.h"
 #include "Button.h"
 #include "Color.h"
@@ -9,7 +11,10 @@
 
 ALLEGRO_DISPLAY* display = NULL;
 ALLEGRO_EVENT_QUEUE* event_queue = NULL;
+
 ALLEGRO_BITMAP* icon = NULL;
+ALLEGRO_SAMPLE* clear_snd = NULL;
+
 ALLEGRO_COLOR curr_color;
 std::vector<Button> buttons = {
     { 5, 5, 20, 20, RED },
@@ -25,30 +30,32 @@ bool isDrawing = false;
 void process_control::init(unsigned short WIDTH, unsigned short HEIGHT) {
     curr_color = al_map_rgb(0, 0, 0);
 
-    if (!al_init()) {
-        return;
-    }
+    if (!al_init()) return;
 
     al_install_mouse();
     al_install_keyboard();
+    al_install_audio();
 
     display = al_create_display(WIDTH, HEIGHT);
-    if (!display) {
-        return;
-    }
+    if (!display) return;
 
     al_set_window_title(display, "SailCloth");
     al_clear_to_color(al_map_rgb(255, 255, 255));
 
     al_init_primitives_addon();
     al_init_image_addon();
+    al_init_acodec_addon();
 
-    for (int i = 0; i < buttons.size(); ++i) {
-        buttons[i].draw_button();
-    }
+    for (int i = 0; i < buttons.size(); ++i) buttons[i].draw_button();
 
     event_queue = al_create_event_queue();
-    icon = al_load_bitmap("icon.png");
+    if (!event_queue) return;
+
+    al_reserve_samples(1);
+
+    icon = al_load_bitmap("img/icon.png");
+    clear_snd = al_load_sample("snd/clear_snd.wav");
+    
     al_register_event_source(event_queue, al_get_display_event_source(display));
     al_register_event_source(event_queue, al_get_mouse_event_source());
     al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
@@ -77,6 +84,7 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
 
             if (event.mouse.button == 2) {
                 isDrawing = false;
+                al_play_sample(clear_snd, 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, 0);
                 al_clear_to_color(al_map_rgb(255, 255, 255));
                 for (int i = 0; i < buttons.size(); ++i) {
                     buttons[i].draw_button();
