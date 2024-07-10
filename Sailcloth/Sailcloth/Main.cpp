@@ -13,10 +13,15 @@ oo     .d8P d8(  888   888   888  888   .o8  888  888   888   888 .  888   888
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_image.h>
-#include "Process.h"
+#include "src/Process.h"
 
 int main() {
-    process_control::run(640, 480);
+    try {
+        process_control::run(640, 480);
+    }
+    catch (...) {
+        throw "Some problems have arisen.";
+    }
 
     return 0;
 }
