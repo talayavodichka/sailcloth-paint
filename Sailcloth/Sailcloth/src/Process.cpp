@@ -58,6 +58,7 @@ void process_control::init(unsigned short WIDTH, unsigned short HEIGHT) {
     
     al_register_event_source(event_queue, al_get_display_event_source(display));
     al_register_event_source(event_queue, al_get_mouse_event_source());
+    al_register_event_source(event_queue, al_get_keyboard_event_source());
     al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
     al_set_display_icon(display, icon);
     al_flip_display();
@@ -70,10 +71,10 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
         ALLEGRO_EVENT event;
         al_wait_for_event(event_queue, &event);
 
-        if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) break;
+        if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE || event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) break;
 
         if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
-            if (sz.Check(event.mouse.x, event.mouse.y)) isDrawing = true;
+            if (sz.is_safe_zone(event.mouse.x, event.mouse.y)) isDrawing = true;
 
             for (auto& button : buttons) {
                 if (event.mouse.x >= button.x && event.mouse.x <= button.x + button.width &&
@@ -91,7 +92,7 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
                 }
             }
         }
-        else if ((event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) || (!sz.Check(event.mouse.x, event.mouse.y))) {
+        else if ((event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) || (!sz.is_safe_zone(event.mouse.x, event.mouse.y))) {
             isDrawing = false;
             al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
         }
