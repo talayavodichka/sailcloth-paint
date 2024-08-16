@@ -6,6 +6,7 @@
 #ifndef SZ
 #define SZ
 
+// Safe zone allows drawing
 struct SafeZone {
     int x, y, width, height;
 

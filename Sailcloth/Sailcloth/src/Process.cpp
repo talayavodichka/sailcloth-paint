@@ -12,7 +12,8 @@
 ALLEGRO_DISPLAY* display = NULL;
 ALLEGRO_EVENT_QUEUE* event_queue = NULL;
 
-ALLEGRO_BITMAP* icon = NULL;
+ALLEGRO_BITMAP* program_icon = NULL;
+ALLEGRO_BITMAP* clear_icon = NULL;
 ALLEGRO_SAMPLE* clear_snd = NULL;
 
 ALLEGRO_COLOR curr_color;
@@ -23,13 +24,15 @@ std::vector<Button> buttons = {
     { 80, 5, 20, 20, YELLOW },
     { 105, 5, 20, 20, PINK },
     { 130, 5, 20, 20, CYAN },
+    { 155, 5, 20, 20, BLACK },
 };
 SafeZone sz(0, 40, 640, 440);
 bool isDrawing = false;
 
 void process_control::init(unsigned short WIDTH, unsigned short HEIGHT) {
-    curr_color = al_map_rgb(0, 0, 0);
+    curr_color = BLACK;
 
+    // ALLEGRO INITS
     if (!al_init()) return;
 
     al_install_mouse();
@@ -46,21 +49,25 @@ void process_control::init(unsigned short WIDTH, unsigned short HEIGHT) {
     al_init_image_addon();
     al_init_acodec_addon();
 
+    // UI DRAW
     for (int i = 0; i < buttons.size(); ++i) buttons[i].draw_button();
+    al_draw_line(0, 28, 640, 28, BLACK, 2);
 
     event_queue = al_create_event_queue();
     if (!event_queue) return;
 
     al_reserve_samples(1);
 
-    icon = al_load_bitmap("img/icon.png");
+    // RESOURCES
+    program_icon = al_load_bitmap("img/program_icon.png");
+    // clear_icon = al_load_bitmap("img/clear_icon.png");
     clear_snd = al_load_sample("snd/clear_snd.wav");
     
     al_register_event_source(event_queue, al_get_display_event_source(display));
     al_register_event_source(event_queue, al_get_mouse_event_source());
     al_register_event_source(event_queue, al_get_keyboard_event_source());
     al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
-    al_set_display_icon(display, icon);
+    al_set_display_icon(display, program_icon);
     al_flip_display();
 }
 
@@ -71,7 +78,7 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
         ALLEGRO_EVENT event;
         al_wait_for_event(event_queue, &event);
 
-        if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE || event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) break;
+        if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) break;
 
         if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
             if (sz.is_safe_zone(event.mouse.x, event.mouse.y)) isDrawing = true;
@@ -87,9 +94,9 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
                 isDrawing = false;
                 al_play_sample(clear_snd, 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, 0);
                 al_clear_to_color(al_map_rgb(255, 255, 255));
-                for (int i = 0; i < buttons.size(); ++i) {
-                    buttons[i].draw_button();
-                }
+                // UI REDRAW
+                for (int i = 0; i < buttons.size(); ++i) buttons[i].draw_button();
+                al_draw_line(0, 28, 640, 28, BLACK, 2);
             }
         }
         else if ((event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) || (!sz.is_safe_zone(event.mouse.x, event.mouse.y))) {
@@ -109,7 +116,8 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
 }
 
 void process_control::destroy() {
-    al_destroy_bitmap(icon);
+    al_destroy_bitmap(program_icon);
+    al_destroy_bitmap(clear_icon);
     al_destroy_display(display);
     al_destroy_event_queue(event_queue);
 }

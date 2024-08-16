@@ -24,6 +24,5 @@ int main() {
     catch (...) {
         throw "Some problems have arisen.";
     }
-
     return 0;
 }
