@@ -5,8 +5,8 @@
 #include <allegro5/allegro_acodec.h>
 
 #pragma once
-#ifndef Process
-#define Process
+#ifndef P
+#define P
 
 namespace process_control {
     void init(unsigned short WIDTH, unsigned short HEIGHT);
@@ -14,4 +14,4 @@ namespace process_control {
 	void destroy();
 }
 
-#endif // !Process
+#endif // !P

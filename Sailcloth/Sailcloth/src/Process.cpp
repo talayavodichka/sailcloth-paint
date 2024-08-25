@@ -1,4 +1,7 @@
 #include <vector>
+#include <Windows.h>
+#include <iostream>
+#include <fstream>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_image.h>
@@ -8,6 +11,7 @@
 #include "Button.h"
 #include "Color.h"
 #include "SafeZone.h"
+#include "SavePicture.h"
 
 ALLEGRO_DISPLAY* display = NULL;
 ALLEGRO_EVENT_QUEUE* event_queue = NULL;
@@ -26,7 +30,7 @@ std::vector<Button> buttons = {
     { 130, 5, 20, 20, CYAN },
     { 155, 5, 20, 20, BLACK },
 };
-SafeZone sz(0, 40, 640, 440);
+SafeZone sz(0, 40, 1920, 1040);
 bool isDrawing = false;
 
 void process_control::init(unsigned short WIDTH, unsigned short HEIGHT) {
@@ -39,6 +43,8 @@ void process_control::init(unsigned short WIDTH, unsigned short HEIGHT) {
     al_install_keyboard();
     al_install_audio();
 
+    al_set_new_display_flags(ALLEGRO_FULLSCREEN);
+    al_set_new_display_flags(ALLEGRO_NOFRAME);
     display = al_create_display(WIDTH, HEIGHT);
     if (!display) return;
 
@@ -51,7 +57,7 @@ void process_control::init(unsigned short WIDTH, unsigned short HEIGHT) {
 
     // UI DRAW
     for (int i = 0; i < buttons.size(); ++i) buttons[i].draw_button();
-    al_draw_line(0, 28, 640, 28, BLACK, 2);
+    al_draw_line(0, 28, 1920, 28, BLACK, 2);
 
     event_queue = al_create_event_queue();
     if (!event_queue) return;
@@ -80,6 +86,10 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
 
         if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) break;
 
+        if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) break;
+        }
+
         if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
             if (sz.is_safe_zone(event.mouse.x, event.mouse.y)) isDrawing = true;
 
@@ -90,13 +100,18 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
                 }
             }
 
+            if (event.mouse.x >= 175 && event.mouse.x <= 195 &&
+                event.mouse.y >= 5 && event.mouse.y <= 25) {
+                take_screenshot("example.png");
+            }
+
             if (event.mouse.button == 2) {
                 isDrawing = false;
                 al_play_sample(clear_snd, 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, 0);
                 al_clear_to_color(al_map_rgb(255, 255, 255));
                 // UI REDRAW
                 for (int i = 0; i < buttons.size(); ++i) buttons[i].draw_button();
-                al_draw_line(0, 28, 640, 28, BLACK, 2);
+                al_draw_line(0, 28, 1920, 28, BLACK, 2);
             }
         }
         else if ((event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) || (!sz.is_safe_zone(event.mouse.x, event.mouse.y))) {

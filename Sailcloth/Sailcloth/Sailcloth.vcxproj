@@ -149,6 +149,7 @@
     <ClInclude Include="src\Color.h" />
     <ClInclude Include="src\Process.h" />
     <ClInclude Include="src\SafeZone.h" />
+    <ClInclude Include="src\SavePicture.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

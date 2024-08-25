@@ -18,8 +18,10 @@ oo     .d8P d8(  888   888   888  888   .o8  888  888   888   888 .  888   888
 #include "src/Process.h"
 
 int main() {
+    // ESC for quit application
+
     try {
-        process_control::run(640, 480);
+        process_control::run(1920, 1080);
     }
     catch (...) {
         throw "Some problems have arisen.";
