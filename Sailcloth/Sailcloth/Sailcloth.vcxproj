@@ -150,6 +150,7 @@
     <ClInclude Include="src\Process.h" />
     <ClInclude Include="src\SafeZone.h" />
     <ClInclude Include="src\SavePicture.h" />
+    <ClInclude Include="src\Tip.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

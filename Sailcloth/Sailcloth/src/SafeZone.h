@@ -1,7 +1,3 @@
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_primitives.h>
-#include <allegro5/allegro_image.h>
-
 #pragma once
 #ifndef SZ
 #define SZ
