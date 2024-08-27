@@ -80,7 +80,7 @@ void process_control::init(unsigned short WIDTH, unsigned short HEIGHT) {
     tips_fnt = al_load_ttf_font("fnt/tips.ttf", 22, NULL);
 
     program_img = al_load_bitmap("img/program_icon.png");
-    // clear_img = al_load_bitmap("img/clear_icon.png");
+    clear_img = al_load_bitmap("img/clear_icon.png");
     save_img = al_load_bitmap("img/save_icon.png");
 
     clear_snd = al_load_sample("snd/clear_snd.wav");
@@ -90,7 +90,11 @@ void process_control::init(unsigned short WIDTH, unsigned short HEIGHT) {
     al_register_event_source(event_queue, al_get_keyboard_event_source());
     al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
     al_set_display_icon(display, program_img);
+
+    // FIRST DRAW
     al_draw_bitmap(save_img, 1880, 5, 0);
+    al_draw_bitmap(clear_img, 1855, 5, 0);
+
     al_flip_display();
 }
 
@@ -122,14 +126,16 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
                 take_screenshot("sailcloth.png");
             }
 
-            if (event.mouse.button == 2) {
+            if (event.mouse.x >= 1855 && event.mouse.x <= 1875 &&
+                event.mouse.y >= 5 && event.mouse.y <= 25) {
                 isDrawing = false;
                 al_play_sample(clear_snd, 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, 0);
                 al_clear_to_color(al_map_rgb(255, 255, 255));
                 // UI REDRAW
                 for (int i = 0; i < buttons.size(); ++i) buttons[i].draw_button();
                 al_draw_line(0, 28, 1920, 28, BLACK, 2);
-                al_draw_bitmap(save_img, 175, 5, 0);
+                al_draw_bitmap(save_img, 1880, 5, 0);
+                al_draw_bitmap(clear_img, 1855, 5, 0);
             }
         }
         else if ((event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) || (!sz.is_safe_zone(event.mouse.x, event.mouse.y))) {
@@ -142,16 +148,23 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
             if (event.mouse.x >= button.x && event.mouse.x <= button.x + button.width &&
                 event.mouse.y >= button.y && event.mouse.y <= button.y + button.height) {
                 isTip = true;
-                tipText = get_tip(0);
+                tipText = get_tip(COLOR_BUTTON);
             }
         }
 
         if (event.mouse.x >= 1880 && event.mouse.x <= 1900 &&
             event.mouse.y >= 5 && event.mouse.y <= 25) {
             isTip = true;
-            tipText = get_tip(1);
+            tipText = get_tip(SAVE_BUTTON);
         }
 
+        if (event.mouse.x >= 1855 && event.mouse.x <= 1875 &&
+            event.mouse.y >= 5 && event.mouse.y <= 25) {
+            isTip = true;
+            tipText = get_tip(CLEAR_BUTTON);
+        }
+
+        // SIGNALS
         if (isDrawing) {
             al_draw_filled_circle(event.mouse.x, event.mouse.y, 10, curr_color);
             al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_PRECISION);
