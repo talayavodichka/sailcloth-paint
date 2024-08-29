@@ -19,6 +19,10 @@ struct SafeZone {
     bool is_safe_zone(int x, int y) {
         return ((x > this->x) && (x < this->width + this->x)) && ((y > this->y) && (y < this->height + this->y));
     }
+
+    void draw_line() {
+        al_draw_line(0, this->y - 15, width, this->y - 15, BLACK, 2);
+    }
 };
 
 #endif // !SZ

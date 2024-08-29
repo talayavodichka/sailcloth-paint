@@ -28,6 +28,7 @@ ALLEGRO_BITMAP* save_img = NULL;
 ALLEGRO_SAMPLE* clear_snd = NULL;
 
 ALLEGRO_COLOR curr_color;
+ALLEGRO_COLOR prev_color;
 std::vector<Button> buttons = {
     { 5, 5, 20, 20, RED },
     { 30, 5, 20, 20, GREEN },
@@ -37,7 +38,7 @@ std::vector<Button> buttons = {
     { 130, 5, 20, 20, CYAN },
     { 155, 5, 20, 20, BLACK },
 };
-SafeZone sz(0, 40, SCREEN_WIDTH - 60, SCREEN_HEIGHT - 40);
+SafeZone sz(0, 60, SCREEN_WIDTH, SCREEN_HEIGHT - 60);
 bool isDrawing = false;
 bool isTip = false;
 
@@ -45,6 +46,7 @@ const char* tipText = "NULL";
 
 void process_control::init(unsigned short WIDTH, unsigned short HEIGHT) {
     curr_color = BLACK;
+    prev_color = BLACK;
 
     // ALLEGRO INITS
     if (!al_init()) return;
@@ -67,10 +69,6 @@ void process_control::init(unsigned short WIDTH, unsigned short HEIGHT) {
     al_init_font_addon();
     al_init_ttf_addon();
 
-    // UI DRAW
-    for (int i = 0; i < buttons.size(); ++i) buttons[i].draw_button();
-    al_draw_line(0, 28, 1920, 28, BLACK, 2);
-
     event_queue = al_create_event_queue();
     if (!event_queue) return;
 
@@ -91,9 +89,11 @@ void process_control::init(unsigned short WIDTH, unsigned short HEIGHT) {
     al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
     al_set_display_icon(display, program_img);
 
-    // FIRST DRAW
+    // UI FIRST DRAW
     al_draw_bitmap(save_img, 1880, 5, 0);
     al_draw_bitmap(clear_img, 1855, 5, 0);
+    for (int i = 0; i < buttons.size(); ++i) buttons[i].draw_button();
+    sz.draw_line();
 
     al_flip_display();
 }
@@ -117,7 +117,9 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
             for (auto& button : buttons) {
                 if (event.mouse.x >= button.x && event.mouse.x <= button.x + button.width &&
                     event.mouse.y >= button.y && event.mouse.y <= button.y + button.height) {
+                    prev_color = curr_color;
                     curr_color = button.color;
+                    al_draw_rectangle(button.x - 1, button.y - 1, button.x + button.width + 1, button.y + button.height + 1, BLACK, 3);
                 }
             }
 
@@ -132,10 +134,10 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
                 al_play_sample(clear_snd, 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, 0);
                 al_clear_to_color(al_map_rgb(255, 255, 255));
                 // UI REDRAW
-                for (int i = 0; i < buttons.size(); ++i) buttons[i].draw_button();
-                al_draw_line(0, 28, 1920, 28, BLACK, 2);
                 al_draw_bitmap(save_img, 1880, 5, 0);
                 al_draw_bitmap(clear_img, 1855, 5, 0);
+                for (int i = 0; i < buttons.size(); ++i) buttons[i].draw_button();
+                sz.draw_line();
             }
         }
         else if ((event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) || (!sz.is_safe_zone(event.mouse.x, event.mouse.y))) {
@@ -177,6 +179,15 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
             al_draw_filled_rectangle(0, 1025, 1920, 1080, WHITE);
         }
         isTip = false;
+
+        for (auto& button : buttons) {
+            if (button.color.r != curr_color.r || button.color.g != curr_color.g || button.color.b != curr_color.b) {
+                al_draw_rectangle(button.x - 1, button.y - 1, button.x + button.width + 2, button.y + button.height + 2, WHITE, 3);
+            }
+            else {
+                al_draw_rectangle(button.x - 1, button.y - 1, button.x + button.width + 2, button.y + button.height + 2, BLACK, 3);
+            }
+        }
 
         al_flip_display();
     }
