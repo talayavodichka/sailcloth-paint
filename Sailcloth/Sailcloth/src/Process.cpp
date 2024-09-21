@@ -22,11 +22,14 @@ ALLEGRO_EVENT_QUEUE* event_queue = NULL;
 ALLEGRO_FONT* tips_fnt = NULL;
 
 ALLEGRO_BITMAP* program_img = NULL;
-ALLEGRO_BITMAP* clear_img = NULL;
 ALLEGRO_BITMAP* save_img = NULL;
+ALLEGRO_BITMAP* clear_img = NULL;
+ALLEGRO_BITMAP* eraser_img = NULL;
 
 ALLEGRO_SAMPLE* clear_snd = NULL;
 
+int curr_size;
+int prev_size;
 ALLEGRO_COLOR curr_color;
 ALLEGRO_COLOR prev_color;
 std::vector<Button> buttons = {
@@ -47,6 +50,8 @@ const char* tipText = "NULL";
 void process_control::init(unsigned short WIDTH, unsigned short HEIGHT) {
     curr_color = BLACK;
     prev_color = BLACK;
+    curr_size = 10;
+    prev_size = 10;
 
     // ALLEGRO INITS
     if (!al_init()) return;
@@ -78,8 +83,9 @@ void process_control::init(unsigned short WIDTH, unsigned short HEIGHT) {
     tips_fnt = al_load_ttf_font("fnt/tips.ttf", 22, NULL);
 
     program_img = al_load_bitmap("img/program_icon.png");
-    clear_img = al_load_bitmap("img/clear_icon.png");
     save_img = al_load_bitmap("img/save_icon.png");
+    clear_img = al_load_bitmap("img/clear_icon.png");
+    eraser_img = al_load_bitmap("img/eraser_icon.png");
 
     clear_snd = al_load_sample("snd/clear_snd.wav");
     
@@ -92,6 +98,7 @@ void process_control::init(unsigned short WIDTH, unsigned short HEIGHT) {
     // UI FIRST DRAW
     al_draw_bitmap(save_img, 1880, 5, 0);
     al_draw_bitmap(clear_img, 1855, 5, 0);
+    al_draw_bitmap(eraser_img, 1830, 5, 0);
     for (int i = 0; i < buttons.size(); ++i) buttons[i].draw_button();
     sz.draw_line();
 
@@ -119,7 +126,7 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
                     event.mouse.y >= button.y && event.mouse.y <= button.y + button.height) {
                     prev_color = curr_color;
                     curr_color = button.color;
-                    al_draw_rectangle(button.x - 1, button.y - 1, button.x + button.width + 1, button.y + button.height + 1, BLACK, 3);
+                    al_draw_rectangle(button.x - 1, button.y - 1, button.x + button.width + 3, button.y + button.height + 3, BLACK, 1);
                 }
             }
 
@@ -138,6 +145,11 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
                 al_draw_bitmap(clear_img, 1855, 5, 0);
                 for (int i = 0; i < buttons.size(); ++i) buttons[i].draw_button();
                 sz.draw_line();
+            }
+
+            if (event.mouse.x >= 1830 && event.mouse.x <= 1850 &&
+                event.mouse.y >= 5 && event.mouse.y <= 25) {
+                curr_color = WHITE;
             }
         }
         else if ((event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) || (!sz.is_safe_zone(event.mouse.x, event.mouse.y))) {
@@ -166,6 +178,12 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
             tipText = get_tip(CLEAR_BUTTON);
         }
 
+        if (event.mouse.x >= 1830 && event.mouse.x <= 1850 &&
+            event.mouse.y >= 5 && event.mouse.y <= 25) {
+            isTip = true;
+            tipText = get_tip(ERASER_BUTTON);
+        }
+
         // SIGNALS
         if (isDrawing) {
             al_draw_filled_circle(event.mouse.x, event.mouse.y, 10, curr_color);
@@ -182,10 +200,10 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
 
         for (auto& button : buttons) {
             if (button.color.r != curr_color.r || button.color.g != curr_color.g || button.color.b != curr_color.b) {
-                al_draw_rectangle(button.x - 1, button.y - 1, button.x + button.width + 2, button.y + button.height + 2, WHITE, 3);
+                al_draw_rectangle(button.x - 1, button.y - 1, button.x + button.width + 3, button.y + button.height + 3, WHITE, 1);
             }
             else {
-                al_draw_rectangle(button.x - 1, button.y - 1, button.x + button.width + 2, button.y + button.height + 2, BLACK, 3);
+                al_draw_rectangle(button.x - 1, button.y - 1, button.x + button.width + 3, button.y + button.height + 3, BLACK, 1);
             }
         }
 
@@ -199,6 +217,7 @@ void process_control::destroy() {
     al_destroy_font(tips_fnt);
 
     al_destroy_bitmap(program_img);
+    al_destroy_bitmap(eraser_img);
     al_destroy_bitmap(clear_img);
     al_destroy_bitmap(save_img);
 
