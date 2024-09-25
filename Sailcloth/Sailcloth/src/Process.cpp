@@ -143,6 +143,7 @@ void process_control::run(unsigned short WIDTH, unsigned short HEIGHT) {
                 // UI REDRAW
                 al_draw_bitmap(save_img, 1880, 5, 0);
                 al_draw_bitmap(clear_img, 1855, 5, 0);
+                al_draw_bitmap(eraser_img, 1830, 5, 0);
                 for (int i = 0; i < buttons.size(); ++i) buttons[i].draw_button();
                 sz.draw_line();
             }
